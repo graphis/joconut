@@ -82,7 +82,7 @@ window._History = (function() {
 _History.init();
 
 fn = function($) {
-  var fill, get, isLocal, scripts, stylesheets;
+  var emit, fill, get, isLocal, listeners, scripts, stylesheets;
   isLocal = new RegExp("^(" + location.protocol + "\/\/" + location.host + "|\\.|\\/|[A-Z0-9_])", 'i');
   $.expr[':'].local = function(e) {
     var href, local;
@@ -97,8 +97,12 @@ fn = function($) {
     return local;
   };
   fill = function(response, callback) {
-    var $head, href, src, tag;
-    $('body').html(/<body[^>]*>((.|[\n\r])*)<\/body>/im.exec(response)[1]);
+    var $head, body, href, src, tag;
+    body = /<body[^>]*>((.|[\n\r])*)<\/body>/im.exec(response);
+    if (!body || !body[1]) {
+      return emit('error');
+    }
+    $('body').html(body[1]);
     document.title = /<title>((.|\n\r])*)<\/title>/im.exec(response)[1];
     $head = void 0;
     while (true) {
@@ -156,6 +160,13 @@ fn = function($) {
       url: options.url,
       type: 'GET',
       data: options.data,
+      timeout: 5000,
+      error: function(xhr, status) {
+        if (callback) {
+          callback(status);
+        }
+        return emit('error');
+      },
       success: function(response) {
         return fill(response, function() {
           if (options.history) {
@@ -164,17 +175,19 @@ fn = function($) {
             }, false, options.url);
           }
           if (callback) {
-            return callback();
+            callback(false, response);
           }
+          return emit('new');
         });
       }
     });
   };
   _History.on('change', function(e) {
-    return get({
+    get({
       url: e.state.url,
       history: false
     });
+    return emit('new');
   });
   scripts = [];
   $('script').each(function() {
@@ -188,7 +201,7 @@ fn = function($) {
     return $('a:local').each(function() {
       var el;
       el = $(this);
-      return el.click(function(e) {
+      return el.live('click', function(e) {
         var url;
         e.preventDefault();
         url = el.attr('href');
@@ -198,6 +211,26 @@ fn = function($) {
         });
       });
     });
+  };
+  listeners = {};
+  emit = function(event) {
+    var listener, _i, _len, _ref, _results;
+    if (!listeners[event]) {
+      return;
+    }
+    _ref = listeners[event];
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      listener = _ref[_i];
+      _results.push(listener());
+    }
+    return _results;
+  };
+  $.joconut.on = function(event, listener) {
+    if (!listeners[event]) {
+      listeners[event] = [];
+    }
+    return listeners[event].push(listener);
   };
   return $(function() {
     return $.joconut();

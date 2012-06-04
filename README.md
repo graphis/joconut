@@ -8,13 +8,26 @@ Download the [production version][min] or the [development version][max].
 [min]: https://raw.github.com/vdemedes/joconut/master/dist/joconut.min.js
 [max]: https://raw.github.com/vdemedes/joconut/master/dist/joconut.js
 
-Include it in your web pages(1kb minified and gzipped):
+Include it in your web pages(1.2kb minified and gzipped):
 
 ```html
 <script src="joconut.min.js"></script> <!-- you must include jQuery before that -->
 ```
 
 That's it! Now, all your local links will not cause page refresh. Remote links will work as expected.
+
+## Events
+
+You can listen to some events Joconut can emit using **on** method:
+```javascript
+$.joconut.on('error', function(){ // fires on timeout, page without <body>, invalid requests
+	alert('Error while loading new page!');
+});
+
+$.joconut.on('new', function(){ // Page changed
+	alert('New page!');
+});
+```
 
 # Features
 
@@ -24,7 +37,7 @@ That's it! Now, all your local links will not cause page refresh. Remote links w
 
 # How is it different from the existing PJAX plugin?
 
-1. 1kb minified and gzipped
+1. 1.2kb minified and gzipped
 2. Auto-detects and loads JS and CSS from fetched pages, if needed
 3. No need to set up or configure
 

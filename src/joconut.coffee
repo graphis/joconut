@@ -10,6 +10,7 @@ class window._History
 				state:
 					url: location.pathname
 				title: document.title
+			
 			window.onpopstate = =>
 				return @emit 'change', @states[location.pathname] if @loaded
 				@loaded = yes
@@ -18,6 +19,7 @@ class window._History
 				state:
 					url: location.pathname
 				title: document.title
+			
 			window.onhashchange = =>
 				@emit 'change', @states[location.hash]
 	
@@ -34,6 +36,7 @@ class window._History
 		@states[if history.pushState then url else "##{ url }"]=
 			state: state
 			title: title
+		
 		if history.pushState then history.pushState(state, title, url) else location.hash = url
 
 _History.init()
@@ -43,13 +46,16 @@ fn = ($) ->
 	
 	$.expr[':'].local = (e) -> # finding local links
 		return no if not e.attributes.href
+		
 		local = no
 		href = e.attributes.href.value
 		local = yes if isLocal.test(href)
 		local
 	
 	fill = (response, callback) -> # replacing current page's content with the new one
-		$('body').html /<body[^>]*>((.|[\n\r])*)<\/body>/im.exec(response)[1] # fill body
+		body = /<body[^>]*>((.|[\n\r])*)<\/body>/im.exec(response) # fill body
+		return emit('error') if not body or not body[1]
+		$('body').html(body[1])
 		document.title = /<title>((.|\n\r])*)<\/title>/im.exec(response)[1] # set title
 		
 		$head = undefined # no need to find <head> now
@@ -95,13 +101,19 @@ fn = ($) ->
 			url: options.url
 			type: 'GET'
 			data: options.data
+			timeout: 5000
+			error: (xhr, status) ->
+				callback status if callback
+				emit 'error'
 			success: (response) ->
 				fill response, ->
 					_History.push { url: options.url }, false, options.url if options.history
-					do callback if callback
+					callback false, response if callback
+					emit 'new'
 	
 	_History.on 'change', (e) ->
 		get url: e.state.url, history: no # just loading an URL
+		emit 'new'
 	
 	scripts = []
 	$('script').each ->
@@ -114,11 +126,24 @@ fn = ($) ->
 	$.joconut = -> # attach Joconut to links and forms
 		$('a:local').each ->
 			el = $ @
-			el.click (e) ->
+			el.live 'click', (e) ->
 				do e.preventDefault
 				
 				url = el.attr 'href'
 				get url: url, history: yes
+	
+	listeners = {}
+	
+	emit = (event) ->
+		return if not listeners[event]
+		
+		for listener in listeners[event]
+			listener()			
+	
+	$.joconut.on = (event, listener) -> # attaching listeners to a specific event
+		listeners[event] = [] if not listeners[event]
+		listeners[event].push listener
+	
 	$ ->
 		$.joconut() # auto-initialization
 		
