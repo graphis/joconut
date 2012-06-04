@@ -145,6 +145,9 @@ fn = function($) {
       }
       response = response.replace(tag[0], '');
     }
+    $('html, body').animate({
+      scrollTop: 0
+    }, 'fast');
     return setTimeout(function() {
       $.joconut();
       if (callback) {

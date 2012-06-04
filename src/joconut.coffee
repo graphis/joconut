@@ -83,6 +83,8 @@ fn = ($) ->
 					$head.append tag[0]
 			response = response.replace tag[0], ''
 		
+		$('html, body').animate scrollTop: 0, 'fast' # scroll to top
+		
 		setTimeout -> # setting up a little timeout, waiting for HTML to get inserted
 			$.joconut()
 			do callback if callback
