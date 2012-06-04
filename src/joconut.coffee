@@ -53,43 +53,52 @@ fn = ($) ->
 		local
 	
 	fill = (response, callback) -> # replacing current page's content with the new one
-		body = /<body[^>]*>((.|[\n\r])*)<\/body>/im.exec(response) # fill body
-		return emit('error') if not body or not body[1]
-		$('body').html(body[1])
-		document.title = /<title>((.|\n\r])*)<\/title>/im.exec(response)[1] # set title
+		$container = $ $.joconut.container
+		if $.joconut.container != 'body'
+			try
+				body = $(response).filter($.joconut.container).html()
+				$container.html body
+			catch err
+				return emit 'error'
+		else
+			body = /<body[^>]*>((.|[\n\r])*)<\/body>/im.exec response
+			$container.html if body then body[1] else response
 		
-		$head = undefined # no need to find <head> now
+		if body
+			document.title = /<title>((.|\n\r])*)<\/title>/im.exec(response)[1] # set title
 		
-		# load scripts, if needed
+			$head = undefined # no need to find <head> now
 		
-		loop
-			tag = /<script\b[^>]*><\/script>/gm.exec response
-			break if not tag
-			src = /src\=.?([A-Za-z0-9-_.\/]+).?/.exec tag[0]
-			break if not src
-			src = src[1]
-			if -1 is scripts.indexOf(src) # need to insert
-				scripts.push src
-				$head = $ 'head' if not $head
-				$head.append tag[0]
-			response = response.replace tag[0], ''
+			# load scripts, if needed
 		
-		# load stylesheets, if needed
-		
-		loop
-			tag = /<link\b[^>]*\/?>/gm.exec response
-			break if not tag
-			if /rel\=.?stylesheet.?/.test tag[0]
-				href = /href\=.?([A-Za-z0-9-_.\/]+).?/.exec tag[0]
-				break if not href
-				href = href[1]
-				if -1 is stylesheets.indexOf(href) # need to insert
-					stylesheets.push href
+			loop
+				tag = /<script\b[^>]*><\/script>/gm.exec response
+				break if not tag
+				src = /src\=.?([A-Za-z0-9-_.\/]+).?/.exec tag[0]
+				break if not src
+				src = src[1]
+				if -1 is scripts.indexOf(src) # need to insert
+					scripts.push src
 					$head = $ 'head' if not $head
 					$head.append tag[0]
-			response = response.replace tag[0], ''
+				response = response.replace tag[0], ''
 		
-		$('html, body').animate scrollTop: 0, 'fast' # scroll to top
+			# load stylesheets, if needed
+		
+			loop
+				tag = /<link\b[^>]*\/?>/gm.exec response
+				break if not tag
+				if /rel\=.?stylesheet.?/.test tag[0]
+					href = /href\=.?([A-Za-z0-9-_.\/]+).?/.exec tag[0]
+					break if not href
+					href = href[1]
+					if -1 is stylesheets.indexOf(href) # need to insert
+						stylesheets.push href
+						$head = $ 'head' if not $head
+						$head.append tag[0]
+				response = response.replace tag[0], ''
+		
+			$('html, body').animate scrollTop: 0, 'fast' # scroll to top
 		
 		setTimeout -> # setting up a little timeout, waiting for HTML to get inserted
 			$.joconut()
@@ -106,6 +115,8 @@ fn = ($) ->
 			error: (xhr, status) ->
 				callback status if callback
 				emit 'error'
+			beforeSend: (xhr) ->
+				xhr.setRequestHeader 'X-PJAX', 'true'
 			success: (response) ->
 				fill response, ->
 					_History.push { url: options.url }, false, options.url if options.history
@@ -145,6 +156,8 @@ fn = ($) ->
 	$.joconut.on = (event, listener) -> # attaching listeners to a specific event
 		listeners[event] = [] if not listeners[event]
 		listeners[event].push listener
+	
+	$.joconut.container = 'body'
 	
 	$ ->
 		$.joconut() # auto-initialization

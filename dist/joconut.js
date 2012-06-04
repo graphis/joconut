@@ -1,4 +1,4 @@
-/*! Joconut - v0.1.1 - 2012-06-04
+/*! Joconut - v0.1.6 - 2012-06-04
 * https://github.com/vdemedes/joconut
 * Copyright (c) 2012 Vadim Demedes; Licensed MIT */
 
@@ -101,57 +101,66 @@ fn = function($) {
     return local;
   };
   fill = function(response, callback) {
-    var $head, body, href, src, tag;
-    body = /<body[^>]*>((.|[\n\r])*)<\/body>/im.exec(response);
-    if (!body || !body[1]) {
-      return emit('error');
+    var $container, $head, body, href, src, tag;
+    $container = $($.joconut.container);
+    if ($.joconut.container !== 'body') {
+      try {
+        body = $(response).filter($.joconut.container).html();
+        $container.html(body);
+      } catch (err) {
+        return emit('error');
+      }
+    } else {
+      body = /<body[^>]*>((.|[\n\r])*)<\/body>/im.exec(response);
+      $container.html(body ? body[1] : response);
     }
-    $('body').html(body[1]);
-    document.title = /<title>((.|\n\r])*)<\/title>/im.exec(response)[1];
-    $head = void 0;
-    while (true) {
-      tag = /<script\b[^>]*><\/script>/gm.exec(response);
-      if (!tag) {
-        break;
-      }
-      src = /src\=.?([A-Za-z0-9-_.\/]+).?/.exec(tag[0]);
-      if (!src) {
-        break;
-      }
-      src = src[1];
-      if (-1 === scripts.indexOf(src)) {
-        scripts.push(src);
-        if (!$head) {
-          $head = $('head');
-        }
-        $head.append(tag[0]);
-      }
-      response = response.replace(tag[0], '');
-    }
-    while (true) {
-      tag = /<link\b[^>]*\/?>/gm.exec(response);
-      if (!tag) {
-        break;
-      }
-      if (/rel\=.?stylesheet.?/.test(tag[0])) {
-        href = /href\=.?([A-Za-z0-9-_.\/]+).?/.exec(tag[0]);
-        if (!href) {
+    if (body) {
+      document.title = /<title>((.|\n\r])*)<\/title>/im.exec(response)[1];
+      $head = void 0;
+      while (true) {
+        tag = /<script\b[^>]*><\/script>/gm.exec(response);
+        if (!tag) {
           break;
         }
-        href = href[1];
-        if (-1 === stylesheets.indexOf(href)) {
-          stylesheets.push(href);
+        src = /src\=.?([A-Za-z0-9-_.\/]+).?/.exec(tag[0]);
+        if (!src) {
+          break;
+        }
+        src = src[1];
+        if (-1 === scripts.indexOf(src)) {
+          scripts.push(src);
           if (!$head) {
             $head = $('head');
           }
           $head.append(tag[0]);
         }
+        response = response.replace(tag[0], '');
       }
-      response = response.replace(tag[0], '');
+      while (true) {
+        tag = /<link\b[^>]*\/?>/gm.exec(response);
+        if (!tag) {
+          break;
+        }
+        if (/rel\=.?stylesheet.?/.test(tag[0])) {
+          href = /href\=.?([A-Za-z0-9-_.\/]+).?/.exec(tag[0]);
+          if (!href) {
+            break;
+          }
+          href = href[1];
+          if (-1 === stylesheets.indexOf(href)) {
+            stylesheets.push(href);
+            if (!$head) {
+              $head = $('head');
+            }
+            $head.append(tag[0]);
+          }
+        }
+        response = response.replace(tag[0], '');
+      }
+      $('html, body').animate({
+        scrollTop: 0
+      }, 'fast');
     }
-    $('html, body').animate({
-      scrollTop: 0
-    }, 'fast');
     return setTimeout(function() {
       $.joconut();
       if (callback) {
@@ -171,6 +180,9 @@ fn = function($) {
           callback(status);
         }
         return emit('error');
+      },
+      beforeSend: function(xhr) {
+        return xhr.setRequestHeader('X-PJAX', 'true');
       },
       success: function(response) {
         return fill(response, function() {
@@ -238,6 +250,7 @@ fn = function($) {
     }
     return listeners[event].push(listener);
   };
+  $.joconut.container = 'body';
   return $(function() {
     return $.joconut();
   });

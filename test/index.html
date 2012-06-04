@@ -6,26 +6,17 @@
 	<script src="/jquery/jquery.js"></script>
 	<script src="/joconut.js"></script>
 	<script>
-		$.joconut.on('error', function(){
-			alert('Error!');
-		});
-		$.joconut.on('new', function(){
-			alert('New page');
-		});
-		$(function(){
-			$('a[href="/sub"]').click(function(e){
-				e.preventDefault();
-				alert('Going deeper!');
-			});
-		});
+		$.joconut.container = '#container'
 	</script>
 </head>
 <body>
-	<a href="/sub">Go deeper</a>
-	<a href="/fuck">Fuck</a>
-	<form action="/" method="post">
-		<input type="hidden" name="_csrf" value="abc">
-		<input type="submit" name="submit" value="Submit">
-	</form>
+	<h1>Hello</h1>
+	<div id="container">
+		<a href="/sub">Go deeper</a>
+		<form action="/" method="post">
+			<input type="hidden" name="_csrf" value="abc">
+			<input type="submit" name="submit" value="Submit">
+		</form>
+	</div>
 </body>
 </html>
