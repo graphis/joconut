@@ -160,6 +160,7 @@ fn = function($) {
     }, 50);
   };
   get = function(options, callback) {
+    emit('beforeNew');
     return $.ajax({
       url: options.url,
       type: 'GET',
@@ -181,7 +182,8 @@ fn = function($) {
           if (callback) {
             callback(false, response);
           }
-          return emit('new');
+          emit('new');
+          return emit('afterNew');
         });
       }
     });

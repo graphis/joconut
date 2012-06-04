@@ -97,6 +97,7 @@ fn = ($) ->
 		, 50
 	
 	get = (options, callback) -> # GET
+		emit 'beforeNew'
 		$.ajax
 			url: options.url
 			type: 'GET'
@@ -110,6 +111,7 @@ fn = ($) ->
 					_History.push { url: options.url }, false, options.url if options.history
 					callback false, response if callback
 					emit 'new'
+					emit 'afterNew'
 	
 	_History.on 'change', (e) ->
 		get url: e.state.url, history: no # just loading an URL

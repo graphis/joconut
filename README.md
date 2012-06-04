@@ -27,6 +27,14 @@ $.joconut.on('error', function(){ // fires on timeout, page without <body>, inva
 $.joconut.on('new', function(){ // Page changed
 	alert('New page!');
 });
+
+$.joconut.on('beforeNew', function(){ // page will be loaded now
+	alert('Before loading new page');
+});
+
+$.joconut('afterNew', function(){ // page was just loaded
+	alert('After loading new page');
+});
 ```
 
 # Features
