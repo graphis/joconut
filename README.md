@@ -32,7 +32,7 @@ $.joconut.on('beforeNew', function(){ // page will be loaded now
 	alert('Before loading new page');
 });
 
-$.joconut('afterNew', function(){ // page was just loaded
+$.joconut.on('afterNew', function(){ // page was just loaded
 	alert('After loading new page');
 });
 ```
