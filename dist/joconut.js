@@ -1,4 +1,4 @@
-/*! Joconut - v0.1.6 - 2012-06-04
+/*! Joconut - v0.1.6 - 2012-06-25
 * https://github.com/vdemedes/joconut
 * Copyright (c) 2012 Vadim Demedes; Licensed MIT */
 
@@ -87,18 +87,12 @@ _History.init();
 
 fn = function($) {
   var emit, fill, get, isLocal, listeners, scripts, stylesheets;
-  isLocal = new RegExp("^(" + location.protocol + "\/\/" + location.host + "|\\.|\\/|[A-Z0-9_])", 'i');
+  isLocal = new RegExp("^(" + location.protocol + "\/\/" + location.host + "|\\.|\\/|[A-Z0-9_#])", 'i');
   $.expr[':'].local = function(e) {
-    var href, local;
     if (!e.attributes.href) {
       return false;
     }
-    local = false;
-    href = e.attributes.href.value;
-    if (isLocal.test(href)) {
-      local = true;
-    }
-    return local;
+    return isLocal.test(e.attributes.href.value);
   };
   fill = function(response, callback) {
     var $container, $head, body, href, src, tag;

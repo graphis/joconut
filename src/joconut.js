@@ -83,18 +83,12 @@ _History.init();
 
 fn = function($) {
   var emit, fill, get, isLocal, listeners, scripts, stylesheets;
-  isLocal = new RegExp("^(" + location.protocol + "\/\/" + location.host + "|\\.|\\/|[A-Z0-9_])", 'i');
+  isLocal = new RegExp("^(" + location.protocol + "\/\/" + location.host + "|\\.|\\/|[A-Z0-9_#])", 'i');
   $.expr[':'].local = function(e) {
-    var href, local;
     if (!e.attributes.href) {
       return false;
     }
-    local = false;
-    href = e.attributes.href.value;
-    if (isLocal.test(href)) {
-      local = true;
-    }
-    return local;
+    return isLocal.test(e.attributes.href.value);
   };
   fill = function(response, callback) {
     var $container, $head, body, href, src, tag;

@@ -42,15 +42,12 @@ class window._History
 _History.init()
 
 fn = ($) ->
-	isLocal = new RegExp "^(#{ location.protocol }\/\/#{ location.host }|\\.|\\/|[A-Z0-9_])", 'i' # dynamically generating regex
+	isLocal = new RegExp "^(#{ location.protocol }\/\/#{ location.host }|\\.|\\/|[A-Z0-9_#])", 'i' # dynamically generating regex
 	
 	$.expr[':'].local = (e) -> # finding local links
 		return no if not e.attributes.href
 		
-		local = no
-		href = e.attributes.href.value
-		local = yes if isLocal.test(href)
-		local
+		isLocal.test e.attributes.href.value
 	
 	fill = (response, callback) -> # replacing current page's content with the new one
 		$container = $ $.joconut.container
