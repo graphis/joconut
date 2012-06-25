@@ -1,4 +1,4 @@
-/*! Joconut - v0.1.6 - 2012-06-25
+/*! Joconut - v0.1.7 - 2012-06-25
 * https://github.com/vdemedes/joconut
 * Copyright (c) 2012 Vadim Demedes; Licensed MIT */
 
@@ -210,17 +210,11 @@ fn = function($) {
     return stylesheets.push($(this).attr('href'));
   });
   $.joconut = function() {
-    return $('a:local').each(function() {
-      var el;
-      el = $(this);
-      return el.live('click', function(e) {
-        var url;
-        e.preventDefault();
-        url = el.attr('href');
-        return get({
-          url: url,
-          history: true
-        });
+    return $('a:local').live('click', function(e) {
+      e.preventDefault();
+      return get({
+        url: $(this).attr('href'),
+        history: true
       });
     });
   };

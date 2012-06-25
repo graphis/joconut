@@ -206,17 +206,11 @@ fn = function($) {
     return stylesheets.push($(this).attr('href'));
   });
   $.joconut = function() {
-    return $('a:local').each(function() {
-      var el;
-      el = $(this);
-      return el.live('click', function(e) {
-        var url;
-        e.preventDefault();
-        url = el.attr('href');
-        return get({
-          url: url,
-          history: true
-        });
+    return $('a:local').live('click', function(e) {
+      e.preventDefault();
+      return get({
+        url: $(this).attr('href'),
+        history: true
       });
     });
   };

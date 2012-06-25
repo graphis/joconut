@@ -78,6 +78,7 @@ fn = ($) ->
 					scripts.push src
 					$head = $ 'head' if not $head
 					$head.append tag[0]
+				
 				response = response.replace tag[0], ''
 		
 			# load stylesheets, if needed
@@ -93,6 +94,7 @@ fn = ($) ->
 						stylesheets.push href
 						$head = $ 'head' if not $head
 						$head.append tag[0]
+				
 				response = response.replace tag[0], ''
 		
 			$('html, body').animate scrollTop: 0, 'fast' # scroll to top
@@ -134,21 +136,17 @@ fn = ($) ->
 		stylesheets.push $(@).attr('href')
 	
 	$.joconut = -> # attach Joconut to links and forms
-		$('a:local').each ->
-			el = $ @
-			el.live 'click', (e) ->
+		$('a:local').live 'click', (e) ->
 				do e.preventDefault
 				
-				url = el.attr 'href'
-				get url: url, history: yes
+				get url: $(@).attr('href'), history: yes
 	
 	listeners = {}
 	
 	emit = (event) ->
 		return if not listeners[event]
 		
-		for listener in listeners[event]
-			listener()			
+		listener() for listener in listeners[event]
 	
 	$.joconut.on = (event, listener) -> # attaching listeners to a specific event
 		listeners[event] = [] if not listeners[event]
@@ -156,7 +154,6 @@ fn = ($) ->
 	
 	$.joconut.container = 'body'
 	
-	$ ->
-		$.joconut() # auto-initialization
+	$ -> $.joconut() # auto-initialization
 		
 fn(jQuery)	
