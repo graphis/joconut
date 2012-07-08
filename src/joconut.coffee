@@ -87,7 +87,7 @@ fn = ($) ->
 				tag = /<link\b[^>]*\/?>/gm.exec response
 				break if not tag
 				if /rel\=.?stylesheet.?/.test tag[0]
-					href = /href\=.?([A-Za-z0-9-_.\/]+).?/.exec tag[0]
+					href = /href\=.?([A-Za-z0-9-_.\/:]+).?/.exec tag[0]
 					break if not href
 					href = href[1]
 					if -1 is stylesheets.indexOf(href) # need to insert
@@ -96,12 +96,12 @@ fn = ($) ->
 						$head.append tag[0]
 				
 				response = response.replace tag[0], ''
-		
+			
 			$('html, body').animate scrollTop: 0, 'fast' # scroll to top
 		
 		setTimeout -> # setting up a little timeout, waiting for HTML to get inserted
-			$.joconut()
 			do callback if callback
+			$.joconut()
 		, 50
 	
 	get = (options, callback) -> # GET
@@ -125,7 +125,6 @@ fn = ($) ->
 	
 	_History.on 'change', (e) ->
 		get url: e.state.url, history: no # just loading an URL
-		emit 'new'
 	
 	scripts = []
 	$('script').each ->
@@ -136,10 +135,12 @@ fn = ($) ->
 		stylesheets.push $(@).attr('href')
 	
 	$.joconut = -> # attach Joconut to links and forms
-		$('a:local').live 'click', (e) ->
-				do e.preventDefault
-				
-				get url: $(@).attr('href'), history: yes
+		links = $ 'a:local'
+		links.off 'click'
+		links.on 'click', (e) ->
+			do e.preventDefault
+			
+			get url: $(@).attr('href'), history: yes
 	
 	listeners = {}
 	

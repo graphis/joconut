@@ -1,4 +1,4 @@
-/*! Joconut - v0.1.7 - 2012-06-25
+/*! Joconut - v0.1.9 - 2012-07-08
 * https://github.com/vdemedes/joconut
 * Copyright (c) 2012 Vadim Demedes; Licensed MIT */
 
@@ -136,7 +136,7 @@ fn = function($) {
           break;
         }
         if (/rel\=.?stylesheet.?/.test(tag[0])) {
-          href = /href\=.?([A-Za-z0-9-_.\/]+).?/.exec(tag[0]);
+          href = /href\=.?([A-Za-z0-9-_.\/:]+).?/.exec(tag[0]);
           if (!href) {
             break;
           }
@@ -156,10 +156,10 @@ fn = function($) {
       }, 'fast');
     }
     return setTimeout(function() {
-      $.joconut();
       if (callback) {
-        return callback();
+        callback();
       }
+      return $.joconut();
     }, 50);
   };
   get = function(options, callback) {
@@ -195,11 +195,10 @@ fn = function($) {
     });
   };
   _History.on('change', function(e) {
-    get({
+    return get({
       url: e.state.url,
       history: false
     });
-    return emit('new');
   });
   scripts = [];
   $('script').each(function() {
@@ -210,7 +209,10 @@ fn = function($) {
     return stylesheets.push($(this).attr('href'));
   });
   $.joconut = function() {
-    return $('a:local').live('click', function(e) {
+    var links;
+    links = $('a:local');
+    links.off('click');
+    return links.on('click', function(e) {
       e.preventDefault();
       return get({
         url: $(this).attr('href'),
