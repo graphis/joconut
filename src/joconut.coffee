@@ -87,7 +87,7 @@ fn = ($) ->
 				tag = /<link\b[^>]*\/?>/gm.exec response
 				break if not tag
 				if /rel\=.?stylesheet.?/.test tag[0]
-					href = /href\=.?([A-Za-z0-9-_.\/:]+).?/.exec tag[0]
+					href = /href\=.?([A-Za-z0-9\-_.\/:]+).?/.exec tag[0]
 					break if not href
 					href = href[1]
 					if -1 is stylesheets.indexOf(href) # need to insert
