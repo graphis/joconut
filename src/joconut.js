@@ -132,7 +132,7 @@ fn = function($) {
           break;
         }
         if (/rel\=.?stylesheet.?/.test(tag[0])) {
-          href = /href\=.?([A-Za-z0-9-_.\/:]+).?/.exec(tag[0]);
+          href = /href\=.?([A-Za-z0-9\-_.\/:]+).?/.exec(tag[0]);
           if (!href) {
             break;
           }
