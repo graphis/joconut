@@ -62,7 +62,7 @@ fn = ($) ->
 			$container.html if body then body[1] else response
 		
 		if body
-			document.title = /<title>((.|\n\r])*)<\/title>/im.exec(response)[1] # set title
+			document.title = /<title>((.|[\n\r])*)<\/title>/im.exec(response)[1] # set title
 		
 			$head = undefined # no need to find <head> now
 		
